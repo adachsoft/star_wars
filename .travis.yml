@@ -5,10 +5,17 @@ language: php
 php:
   - 7.3
 
+# Start mysql service
+services:
+  - mysql
+
 # optionally specify a list of environments, for example to test different RDBMS
 env:
   - DB=mysql
 
+# Update composer
+before-install:
+  - composer self-update
 
 # execute any number of scripts before the test run, custom env's are available as variables
 before_script:
