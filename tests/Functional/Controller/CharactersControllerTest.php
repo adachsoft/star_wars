@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Helper\AssertTrait;
 
-class StarWarsControllerTest extends WebTestCase
+class CharactersControllerTest extends WebTestCase
 {
     use AssertTrait;
 
@@ -25,7 +25,7 @@ class StarWarsControllerTest extends WebTestCase
         $character = $em->getRepository(Characters::class)->findOneBy(['name' => 'test']);
         $id = $character->getId();
 
-        $client->request('GET', "/one/{$id}");
+        $client->request('GET', "/characters/one/{$id}");
 
         $this->assertJsonResponse(Response::HTTP_OK, $client->getResponse());
         $result = json_decode($client->getResponse()->getContent(), true);
@@ -53,7 +53,7 @@ class StarWarsControllerTest extends WebTestCase
             //'friends' => [],
         ];
         
-        $client->request('POST', '/add/', ['data' => $data]);
+        $client->request('POST', '/characters/add/', ['data' => $data]);
 
         $this->assertJsonResponse(Response::HTTP_CREATED, $client->getResponse());
         $result = json_decode($client->getResponse()->getContent(), true);
@@ -81,7 +81,7 @@ class StarWarsControllerTest extends WebTestCase
             //'episodes' => [['name' => 'NEWHOPE']],
         ];
         
-        $client->request('PUT', "/update/{$id}", ['data' => $data]);
+        $client->request('PUT', "/characters/update/{$id}", ['data' => $data]);
 
         $this->assertJsonResponse(Response::HTTP_OK, $client->getResponse());
         $this->assertSame($numberOfCharacters, $charactersRepository->countAll());
@@ -115,7 +115,7 @@ class StarWarsControllerTest extends WebTestCase
         $charactersRepository = $em->getRepository(Characters::class);
         $numberOfCharacters = $charactersRepository->countAll();
         
-        $client->request('DELETE', "/delete/{$id}");
+        $client->request('DELETE', "/characters/delete/{$id}");
 
         //$this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
         //$this->assertJsonResponse(Response::HTTP_NO_CONTENT, $client->getResponse());

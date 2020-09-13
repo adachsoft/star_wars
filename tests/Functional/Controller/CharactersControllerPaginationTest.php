@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Helper\AssertTrait;
 
-class StarWarsControllerPaginationTest extends WebTestCase
+class CharactersControllerPaginationTest extends WebTestCase
 {
     use AssertTrait;
 
@@ -42,14 +42,14 @@ class StarWarsControllerPaginationTest extends WebTestCase
     public function testShouldReturnCodeHTTPNotAcceptable(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/-1');
+        $client->request('GET', '/characters/-1');
 
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
         /**
          * @var CharactersRepository $charactersRepository
          */
         $charactersRepository = $em->getRepository(Characters::class);
-        $numberOfCharacters = $charactersRepository->countAll();
+        
 
         $this->assertJsonResponse(Response::HTTP_NOT_ACCEPTABLE, $client->getResponse());
         $result = json_decode($client->getResponse()->getContent(), true);
@@ -61,9 +61,9 @@ class StarWarsControllerPaginationTest extends WebTestCase
     public function dataIndexWithPagination(): array
     {
         return [
-            [1, '/'],
-            [1, '/1'],
-            [4, '/4'],
+            [1, '/characters'],
+            [1, '/characters/1'],
+            [4, '/characters/4'],
         ];
     }
 }
