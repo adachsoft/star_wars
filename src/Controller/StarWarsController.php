@@ -48,7 +48,15 @@ class StarWarsController extends AbstractController
     {
         $characters = $this->charactersRepository->findAll();
         
-        return $this->responseFactory->create($characters, Response::HTTP_OK);
+        return $this->responseFactory->create(
+            [
+                'characters' => $characters,
+                'pagination' => [
+                    'total' => count($characters),
+                ],
+            ],
+            Response::HTTP_OK
+        );
     }
 
     /**

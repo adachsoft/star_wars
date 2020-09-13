@@ -29,10 +29,12 @@ class AppFixtures extends Fixture
 
         $manager->persist($characters);
 
-        $characters2 = new Characters();
-        $characters2->setName('test2');
-
-        $manager->persist($characters2);
+        for($i = 0; $i < 20; ++$i) {
+            $characters = new Characters();
+            $characters->setName("test {$i}");
+    
+            $manager->persist($characters);
+        }
     }
 
     private function createEpisodes(ObjectManager $manager)

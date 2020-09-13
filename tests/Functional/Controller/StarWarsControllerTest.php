@@ -8,9 +8,12 @@ use App\Entity\Characters;
 use App\Repository\CharactersRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\Helper\AssertTrait;
 
 class StarWarsControllerTest extends WebTestCase
 {
+    use AssertTrait;
+
     public function testIndex(): void
     {
         $client = static::createClient();
@@ -26,7 +29,8 @@ class StarWarsControllerTest extends WebTestCase
         $result = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertIsArray($result);
-        $this->assertCount($numberOfCharacters, $result);
+        $this->assertArrayHasKey('characters', $result);
+        $this->assertCount($numberOfCharacters, $result['characters']);
     }
 
     public function testOne(): void
@@ -138,11 +142,5 @@ class StarWarsControllerTest extends WebTestCase
 
         $result = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame($numberOfCharacters -1, $charactersRepository->countAll());
-    }
-
-    private function assertJsonResponse(int $expectedStatusCode, Response $response): void
-    {
-        $this->assertEquals($expectedStatusCode, $response->getStatusCode());
-        $this->assertSame($response->headers->get('Content-Type'), 'application/json');
     }
 }
