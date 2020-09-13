@@ -26,14 +26,14 @@ before_script:
   - mysql -e "UPDATE mysql.user SET Host='%' WHERE Host='localhost' AND User='root';\nFLUSH PRIVILEGES;" -uroot
   - mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';\nFLUSH PRIVILEGES;" -uroot
   - mysql -e "UPDATE mysql.user set authentication_string=password('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;" -uroot
-  
-
-install:
-  - composer install
   - bin/console doctrine:migrations:migrate -e test --no-interaction
   - bin/console doctrine:fixtures:load -e test -n
 
+install:
+  - composer install
+  
 # omitting "script:" will default to phpunit
 # use the $DB env variable to determine the phpunit.xml to use
 #script: phpunit --configuration phpunit_$DB.xml --coverage-text
-script: bin/phpunit --coverage-html coverage
+script: 
+  - bin/phpunit --coverage-html coverage
