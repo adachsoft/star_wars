@@ -23,7 +23,7 @@ before_script:
   - mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot;
   #- echo "USE mysql;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
   #- mysql -e "USE mysql;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" -uroot
-  - mysql -e "USE mysql;\nUPDATE user set authentication_string=password('pass1234') where user='root';" -uroot
+  - mysql -e "USE mysql;\nUPDATE user set authentication_string=password('pass1234') WHERE user='root';" -uroot
 
 install:
   - composer install
