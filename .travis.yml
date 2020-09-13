@@ -21,7 +21,7 @@ before-install:
 before_script:
   - if [[ "$DB" == "mysql" ]]; then mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot; fi
   #- echo "USE mysql;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
-  - mysql -e "UPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" -uroot
+  - mysql -e "USE star_wars_test;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" -uroot
 
 install:
   - composer install
