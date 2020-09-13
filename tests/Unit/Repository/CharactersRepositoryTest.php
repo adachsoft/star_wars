@@ -6,6 +6,7 @@ namespace Tests\Unit\App\Repository;
 
 use App\Entity\Characters;
 use App\Repository\CharactersRepository;
+use App\Repository\Model\CharactersRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use \Doctrine\ORM\EntityManager;
 
@@ -25,17 +26,21 @@ class CharactersRepositoryTest extends KernelTestCase
             ->getManager();
     }
 
+    public function testInstance(): void
+    {
+        $charactersRepository = $this->getCharactersRepository();
+        $this->assertInstanceOf(CharactersRepositoryInterface::class, $charactersRepository);
+    }
+
     public function testSearchByName(): void
     {
-        $character = $this->entityManager
-            ->getRepository(Characters::class)
-            ->findOneBy(['name' => 'test'])
-        ;
+        $charactersRepository = $this->getCharactersRepository();
+        $character = $charactersRepository->findOneBy(['name' => 'test']);
 
         $this->assertSame('test', $character->getName());
     }
 
-    public function testCount(): void
+    public function testCountAll(): void
     {
         $conn = $this->entityManager->getConnection();
         $sql = 'SELECT count(*) FROM characters';
@@ -43,12 +48,33 @@ class CharactersRepositoryTest extends KernelTestCase
         $stmt->execute();
         $numberOfCharacters = (int) $stmt->fetchColumn(0);
 
-        /**
-         * @var CharactersRepository $charactersRepository
-         */
-        $charactersRepository = $this->entityManager->getRepository(Characters::class);
+        $charactersRepository = $this->getCharactersRepository();
         
         $this->assertSame($numberOfCharacters, $charactersRepository->countAll());
+    }
+
+    /**
+     * @dataProvider dataFindWithOffsetAndLimit
+     */
+    public function testFindWithOffsetAndLimit(int $expectedCount, int $offset, int $limit, int $startIndex): void
+    {
+        $charactersRepository = $this->getCharactersRepository();
+        $result = $charactersRepository->findWithOffsetAndLimit($offset, $limit);
+
+        $this->assertCount($expectedCount, $result);
+        foreach($result as $key => $character){
+            $i = $startIndex + $key;
+            $this->assertSame("test {$i}", $character->getName());
+        }
+    }
+
+    public function dataFindWithOffsetAndLimit(): array
+    {
+        return [
+            ['expectedCount' => 3, 'offset' => 1, 'limit' => 3, 'startIndex' => 0],
+            ['expectedCount' => 4, 'offset' => 3, 'limit' => 4, 'startIndex' => 2],
+            ['expectedCount' => 2, 'offset' => 19, 'limit' => 5, 'startIndex' => 18],
+        ];
     }
 
     protected function tearDown(): void
@@ -58,5 +84,13 @@ class CharactersRepositoryTest extends KernelTestCase
         // doing this is recommended to avoid memory leaks
         $this->entityManager->close();
         $this->entityManager = null;
+    }
+
+    private function getCharactersRepository(): CharactersRepository
+    {
+        /**
+         * @var CharactersRepository $charactersRepository
+         */
+        return $this->entityManager->getRepository(Characters::class);
     }
 }

@@ -14,5 +14,7 @@ interface PaginatorInterface
 
     public function setNumberOfItemsPerPage(int $numberOfItemsPerPage): void;
 
+    public function getNumberOfItemsPerPage(): int;
+
     public function getData(): iterable;
 }

@@ -5,6 +5,8 @@ declare(strict_types = 1);
 namespace App\Controller;
 
 use App\Entity\Characters;
+use App\Pagination\Exception\PaginatorException;
+use App\Pagination\Factory\PaginatorFactory;
 use App\Repository\CharactersRepository;
 use App\Response\Factory\Model\ResponseFactoryInterface;
 use App\Transformer\Model\ArrayToEntityTransformerInterface;
@@ -31,28 +33,46 @@ class StarWarsController extends AbstractController
      */
     private $arrayToEntityTransformer;
 
+    /**
+     * @var PaginatorFactory
+     */
+    private $paginatorFactory;
+
     public function __construct(
         CharactersRepository $charactersRepository,
         ResponseFactoryInterface $responseFactory,
-        ArrayToEntityTransformerInterface $arrayToEntityTransformer
+        ArrayToEntityTransformerInterface $arrayToEntityTransformer,
+        PaginatorFactory $paginatorFactory
     ) {
         $this->charactersRepository = $charactersRepository;
         $this->responseFactory = $responseFactory;
         $this->arrayToEntityTransformer = $arrayToEntityTransformer;
+        $this->paginatorFactory = $paginatorFactory;
     }
 
     /**
-     * @Route("/", name="main")
+     * @Route("/{page}", name="main")
      */
-    public function index(): Response
+    public function index(int $page = 1): Response
     {
-        $characters = $this->charactersRepository->findAll();
+        $paginator = $this->paginatorFactory->create(Characters::class);
+        try{
+            $paginator->setNumberOfItemsPerPage($this->getParameter('pagination.number_of_items_per_page'));
+            $paginator->setCurrentPage($page);
+        }catch(PaginatorException $e){
+            return $this->responseFactory->create(
+                ['status' => $e->getMessage()], 
+                Response::HTTP_NOT_ACCEPTABLE
+            );
+        }
         
         return $this->responseFactory->create(
             [
-                'characters' => $characters,
+                'characters' => $paginator->getData(),
                 'pagination' => [
-                    'total' => count($characters),
+                    'total' => $paginator->getTotalItems(),
+                    'current_page' => $paginator->getCurrentPage(),
+                    'number_of_pages' => $paginator->getNumberOfPages(),
                 ],
             ],
             Response::HTTP_OK

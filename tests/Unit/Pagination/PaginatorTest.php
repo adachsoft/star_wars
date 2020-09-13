@@ -38,15 +38,25 @@ class PaginatorTest extends TestCase
         $this->assertSame(72, $paginator->getTotalItems());
     }
     
-    public function testData(): void
+    /**
+     * @dataProvider dataData
+     */
+    public function testData(int $expectedOffset, int $limit, int $currentPage): void
     {
+        $data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        $count = count($data);
+
         $dataPaginationProvider = $this->createMock(DataPaginationProviderInterface::class);
-        $dataPaginationProvider->expects($this->once())->method('getData')->willReturn([1, 2, 3]);
+        $dataPaginationProvider->method('getCount')->willReturn($count);
+        $dataPaginationProvider->expects($this->once())->method('getData')->willReturn($data)->with($expectedOffset, $limit);
 
         $paginator = new Paginator($dataPaginationProvider);
+        $paginator->setNumberOfItemsPerPage($limit);
+        $paginator->setCurrentPage($currentPage);
         $data = $paginator->getData();
         $this->assertIsIterable($data);
-        $this->assertCount(3, $data);
+        $this->assertCount($count, $data);
+        $this->assertSame($limit, $paginator->getNumberOfItemsPerPage());
     }
 
     /**
@@ -118,6 +128,15 @@ class PaginatorTest extends TestCase
             [0, 72],
             [-100, 72],
             [2160, 72],
+        ];
+    }
+
+    public function dataData(): array
+    {
+        return [
+            ['expectedOffset' => 4, 'limit' => 2, 'currentPage' => 3],
+            ['expectedOffset' => 2, 'limit' => 2, 'currentPage' => 2],
+            ['expectedOffset' => 0, 'limit' => 2, 'currentPage' => 1],
         ];
     }
 }

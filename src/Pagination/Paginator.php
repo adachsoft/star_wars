@@ -70,8 +70,16 @@ class Paginator implements PaginatorInterface
         $this->numberOfItemsPerPage = $numberOfItemsPerPage;
     }
 
+    public function getNumberOfItemsPerPage(): int
+    {
+        return $this->numberOfItemsPerPage;
+    }
+
     public function getData(): iterable
     {
-        return $this->dataPaginationProvider->getData();
+        $limit = $this->getNumberOfItemsPerPage();
+        $offset = ($this->getCurrentPage() - 1) * $limit;
+        
+        return $this->dataPaginationProvider->getData($offset, $limit);
     }
 }

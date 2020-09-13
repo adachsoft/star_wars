@@ -14,25 +14,6 @@ class StarWarsControllerTest extends WebTestCase
 {
     use AssertTrait;
 
-    public function testIndex(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/');
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        /**
-         * @var CharactersRepository $charactersRepository
-         */
-        $charactersRepository = $em->getRepository(Characters::class);
-        $numberOfCharacters = $charactersRepository->countAll();
-
-        $this->assertJsonResponse(Response::HTTP_OK, $client->getResponse());
-        $result = json_decode($client->getResponse()->getContent(), true);
-
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('characters', $result);
-        $this->assertCount($numberOfCharacters, $result['characters']);
-    }
-
     public function testOne(): void
     {
         $client = static::createClient();
