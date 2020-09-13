@@ -19,7 +19,8 @@ before-install:
 
 # execute any number of scripts before the test run, custom env's are available as variables
 before_script:
-  - if [[ "$DB" == "mysql" ]]; then mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot; fi
+  #- if [[ "$DB" == "mysql" ]]; then mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot; fi
+  - mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot;
   #- echo "USE mysql;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
   - mysql -e "USE star_wars_test;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" -uroot
 
