@@ -10,30 +10,22 @@ services:
   - mysql
 
 # optionally specify a list of environments, for example to test different RDBMS
-env:
-  - DB=mysql
+#env:
+#  - DB=mysql
 
-# Update composer
 before-install:
   - composer self-update
 
-# execute any number of scripts before the test run, custom env's are available as variables
 before_script:
-  #- if [[ "$DB" == "mysql" ]]; then mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot; fi
   - mysql -e "create database IF NOT EXISTS star_wars_test;" -uroot;
-  #- echo "USE mysql;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
-  #- mysql -e "USE mysql;\nUPDATE user SET password=PASSWORD('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" -uroot
   - mysql -e "UPDATE mysql.user SET Host='%' WHERE Host='localhost' AND User='root';\nFLUSH PRIVILEGES;" -uroot
   - mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';\nFLUSH PRIVILEGES;" -uroot
   - mysql -e "UPDATE mysql.user set authentication_string=password('pass1234') WHERE user='root';\nFLUSH PRIVILEGES;" -uroot
   - bin/console doctrine:migrations:migrate -e test --no-interaction
-  - bin/console doctrine:fixtures:load -e test -n
+  - bin/console doctrine:fixtures:load -e test --group=for_test -n
 
 install:
   - composer install
   
-# omitting "script:" will default to phpunit
-# use the $DB env variable to determine the phpunit.xml to use
-#script: phpunit --configuration phpunit_$DB.xml --coverage-text
 script: 
   - bin/phpunit --coverage-html coverage
