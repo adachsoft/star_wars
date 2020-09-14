@@ -4,19 +4,17 @@ declare(strict_types = 1);
 
 namespace App\DTO\Model;
 
+use InvalidArgumentException;
+
 abstract class AbstractDTO
 {
-    protected $container = [];
-
     public function __set(string $name, $value): void
     {
-        $this->container[$name] = $value;
-        var_dump($name);
-        var_dump($value);
+        throw new InvalidArgumentException('Property is unavailable');
     }
 
-    public function __get(string $name)
+    public function __get(string $name): void
     {
-        return $this->container[$name] ?? null;
+        throw new InvalidArgumentException('Property is unavailable');
     }
 }

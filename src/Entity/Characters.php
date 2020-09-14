@@ -72,6 +72,11 @@ class Characters
         return $this->episodes;
     }
 
+    public function removeEpisodes(): void
+    {
+        $this->episodes->clear();
+    }
+
     public function getPlanet(): ?Planet
     {
         return $this->planet;
@@ -92,5 +97,10 @@ class Characters
     public function getFriends(): Collection
     {
         return $this->friends;
+    }
+
+    public function removeFriends(): void
+    {
+        $this->friends->clear();
     }
 }

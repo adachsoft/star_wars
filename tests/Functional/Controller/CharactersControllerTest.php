@@ -50,7 +50,7 @@ class CharactersControllerTest extends WebTestCase
         $data = [
             'name' => 'Luke Skywalker - test',
             'episodes' => [['name' => 'NEWHOPE']],
-            //'friends' => [],
+            'friends' => [['name' => 'test 1']],
         ];
         
         $client->request('POST', '/characters/add/', ['data' => $data]);
@@ -78,7 +78,8 @@ class CharactersControllerTest extends WebTestCase
 
         $data = [
             'name' => 'Luke Skywalker',
-            //'episodes' => [['name' => 'NEWHOPE']],
+            'planet' => 'Planet-X',
+            'friends' => [['name' => 'test 2']],
         ];
         
         $client->request('PUT', "/characters/update/{$id}", ['data' => $data]);
@@ -89,10 +90,7 @@ class CharactersControllerTest extends WebTestCase
         $this->assertArrayHasKey('id', $result);
         $this->assertSame($id, $result['id']);
         $this->assertSame($data['name'], $result['name']);
-
-        /*$character = $charactersRepository->find($id);
-        var_dump($character->getName());
-        $this->assertSame($data['name'], $character->getName());*/
+        $this->assertCount(1, $result['friends']);
 
         $conn = $em->getConnection();
         $sql = 'SELECT * FROM characters WHERE id = ' . $id;
@@ -117,8 +115,6 @@ class CharactersControllerTest extends WebTestCase
         
         $client->request('DELETE', "/characters/delete/{$id}");
 
-        //$this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
-        //$this->assertJsonResponse(Response::HTTP_NO_CONTENT, $client->getResponse());
         $this->assertJsonResponse(Response::HTTP_OK, $client->getResponse());
 
         $result = json_decode($client->getResponse()->getContent(), true);

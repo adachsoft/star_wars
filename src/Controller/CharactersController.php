@@ -9,6 +9,7 @@ use App\Pagination\Exception\PaginatorException;
 use App\Pagination\Factory\PaginatorFactory;
 use App\Repository\CharactersRepository;
 use App\Response\Factory\Model\ResponseFactoryInterface;
+use App\Transformer\Exception\TransformerException;
 use App\Transformer\Model\ArrayToEntityTransformerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +52,7 @@ class CharactersController extends AbstractController
     }
 
     /**
-     * @Route("/characters/{page}", name="main")
+     * @Route("/characters/{page}", name="get_characters")
      */
     public function index(int $page = 1): Response
     {
@@ -80,7 +81,7 @@ class CharactersController extends AbstractController
     }
 
     /**
-     * @Route("/characters/one/{id}", name="app_character_one")
+     * @Route("/characters/one/{id}", name="get_character_one")
      */
     public function one(int $id): Response
     {
@@ -97,14 +98,7 @@ class CharactersController extends AbstractController
      */
     public function add(Request $request): JsonResponse
     {
-        $data = $request->get('data');
-        $character = $this->arrayToEntityTransformer->transform($data);
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($character);
-        $entityManager->flush();
-
-        return $this->responseFactory->create($character, Response::HTTP_CREATED);
+        return $this->processCharacter($request);
     }
 
     /**
@@ -117,14 +111,7 @@ class CharactersController extends AbstractController
             return $this->getRecordNotFoundResponse();
         }
 
-        $data = $request->get('data');
-        $character = $this->arrayToEntityTransformer->transform($data, $character);
-        
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($character);
-        $entityManager->flush();
-
-        return $this->responseFactory->create($character, Response::HTTP_OK);
+        return $this->processCharacter($request, $character);
     }
 
     /**
@@ -141,7 +128,6 @@ class CharactersController extends AbstractController
         $entityManager->remove($character);
         $entityManager->flush();
 
-        //return new JsonResponse(['status' => 'Character deleted'], Response::HTTP_NO_CONTENT);
         return $this->responseFactory->create(['status' => 'Character deleted'], Response::HTTP_OK);
     }
 
@@ -151,5 +137,25 @@ class CharactersController extends AbstractController
             ['status' => 'Record not found'], 
             Response::HTTP_NOT_FOUND
         );
+    }
+
+    private function processCharacter(Request $request, ?Characters $character = null): JsonResponse
+    {
+        $data = $request->get('data');
+        try{
+            $statusCode = $character instanceof Characters ? Response::HTTP_OK : Response::HTTP_CREATED;
+            $character = $this->arrayToEntityTransformer->transform($data, $character);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($character);
+            $entityManager->flush();
+
+            return $this->responseFactory->create(
+                $character,
+                $statusCode
+            );
+        }catch(TransformerException $e){
+            return $this->responseFactory->create(['status' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
