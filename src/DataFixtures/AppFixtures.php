@@ -68,13 +68,6 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $leiaOrgana->addEpisode($episodeNewhope);
         $leiaOrgana->addEpisode($episodeEmpire);
         $leiaOrgana->addEpisode($episodeJedi);
-        $manager->persist($leiaOrgana);
-
-        $leiaOrgana = new Characters();
-        $leiaOrgana->setName('Leia Organa');
-        $leiaOrgana->addEpisode($episodeNewhope);
-        $leiaOrgana->addEpisode($episodeEmpire);
-        $leiaOrgana->addEpisode($episodeJedi);
         $leiaOrgana->setPlanet($planetAlderaan);
         $manager->persist($leiaOrgana);
 
